@@ -10,7 +10,7 @@ productController.getAllProducts = (req, res, next) => {
     FROM
     public.product
 		WHERE
-		available = true
+		available = false
     `;
 
 	db.query(query, (error, response) => {

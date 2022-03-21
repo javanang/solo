@@ -76,6 +76,7 @@ userController.verifyUser = (req, res, next) => {
 		
 		if (response.rows[0].password === password) {
 			res.locals.userId = response.rows[0]._id;
+			res.locals.userInfo = response.rows[0];
 			return next();
 		}
 		
