@@ -11,7 +11,7 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import Cookies from 'js-cookie';
+import PersonIcon from '@mui/icons-material/Person';
 import { Link } from 'react-router-dom';
 
 const pages = ['Products'];
@@ -19,11 +19,6 @@ const pages = ['Products'];
 const ResponsiveAppBar = (props) => {
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
-
-  useEffect(() => {
-    console.log(Cookies.get());
-    if (Cookies.get('ssid') !== undefined) console.log('loggedIn');
-  });
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -41,17 +36,35 @@ const ResponsiveAppBar = (props) => {
     setAnchorElUser(null);
   };
 
+  const handleModeChange = () => {
+    props.mode === 'light' ? props.setMode('dark') : props.setMode('light');
+  };
+
+  const handleLogout = () => {
+    fetch('/login/out', {
+      method: 'PUT',
+      body: JSON.stringify(props),
+      headers: { 'Content-Type': 'application/json' },
+    })
+      .then(() => { 
+        props.setUsername(null);
+        props.setUserId(null);
+        props.setLoginStatus(false);
+        return
+      })
+      .catch (err => console.log('Logout Submit: ERROR: ', err));
+  };
+
   return (
     <AppBar position="static">
       <Container maxWidth="xl">
-        <Toolbar disableGutters>
+        <Toolbar disableGutters color="secondary">
           <Typography
             variant="h6"
             noWrap
-            component="div"
             sx={{ mr: 2, display: { xs: 'none', md: 'flex' } }}
           >
-            LOGO
+            COCO
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -83,10 +96,10 @@ const ResponsiveAppBar = (props) => {
                 display: { xs: 'block', md: 'none' },
               }}
             >
-                <MenuItem key={1} onClick={handleCloseNavMenu} component={Link} to={'/'}>
-                  <Typography textAlign="center">Home</Typography>
-                </MenuItem>
-              <MenuItem key={2} onClick={handleCloseNavMenu}>
+              <MenuItem key={1} onClick={handleCloseNavMenu} component={Link} to={'/'}>
+                <Typography textAlign="center">Home</Typography>
+              </MenuItem>
+              <MenuItem key={2} onClick={handleCloseNavMenu} component={Link} to={'/stuff'}>
                 <Typography textAlign="center">Products</Typography>
               </MenuItem>
             </Menu>
@@ -94,24 +107,25 @@ const ResponsiveAppBar = (props) => {
           <Typography
             variant="h6"
             noWrap
-            component="div"
             sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}
           >
-            LOGO
+            COCO
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            <Link to={'/'} style={{ textDecoration: 'none' }}>
-              <Button
-                key={1}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                Home
-              </Button>
-            </Link>
+            <Button
+              key={1}
+              onClick={handleCloseNavMenu}
+              component={Link}
+              to={'/'}
+              sx={{ my: 2, color: 'white', display: 'block' }}
+            >
+              Home
+            </Button>
             <Button
               key={2}
               onClick={handleCloseNavMenu}
+              component={Link}
+              to={'/stuff'}
               sx={{ my: 2, color: 'white', display: 'block' }}
             >
               Products
@@ -123,7 +137,8 @@ const ResponsiveAppBar = (props) => {
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                  {/* <PersonIcon/> */}
+                  <Avatar alt={props.username} />
                 </IconButton>
               </Tooltip>
               <Menu
@@ -142,25 +157,22 @@ const ResponsiveAppBar = (props) => {
                 open={Boolean(anchorElUser)}
                 onClose={handleCloseUserMenu}
               >
-                <MenuItem key={1} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">Profile</Typography>
+                <MenuItem key={1} onClick={() => {handleCloseUserMenu(); handleModeChange()}}>
+                  <Typography textAlign="center">Mode</Typography>
                 </MenuItem>
-                <MenuItem key={2} onClick={handleCloseUserMenu}>
+                <MenuItem key={2} onClick={handleCloseUserMenu} component={Link} to={'/dashboard'}>
                   <Typography textAlign="center">Dashboard</Typography>
                 </MenuItem>
-                <MenuItem key={3} onClick={() => { handleCloseUserMenu(); props.setLoginStatus(false) }}>
+                <MenuItem key={3} onClick={() => { handleCloseUserMenu(); props.setLoginStatus(false); handleLogout() }} component={Link} to={'/'}>
                   <Typography textAlign="center">Logout</Typography>
                 </MenuItem>
               </Menu>
             </Box>
             :
             <Box sx={{ flexGrow: 0 }}>
-              <Link to={'/signinup'} style={{ textDecoration: 'none' }}>
-                <Button variant="contained" color="secondary">Login / SignUp</Button>
-              </Link>
+              <Button variant="contained" color="secondary" component={Link} to={'/signinup'}>Login / SignUp</Button>
             </Box>
           }
-
         </Toolbar>
       </Container>
     </AppBar>

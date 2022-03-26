@@ -10,14 +10,10 @@ const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 app.use(express.json());
 
-app.get('/', (req, res) => {
-    res.send('home page')
-});
-
 app.use('/products', productsRouter);
 app.use('/signup', signupRouter);
 app.use('/login', loginRouter);
-app.use('/dashboard', dashboardRouter);
+app.use('/dashboard-server', dashboardRouter);
 
 
 
@@ -28,7 +24,7 @@ app.use((err, req, res, next) => {
     res.locals.message = err.message;
     console.log('ERROR: ', err);
     const errorStatus = err.status || 500;
-    return res.status(errorStatus).send(res.locals.message);
+    return res.status(errorStatus).json(err);
 });
 
 app.listen(port, () => {

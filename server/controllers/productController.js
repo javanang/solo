@@ -6,11 +6,15 @@ productController = {};
 productController.getAllProducts = (req, res, next) => {
 	const query = `
     SELECT
-    *
+    p.*, u.username
     FROM
-    public.product
+    public.product p
+		JOIN
+		public.user u
+		ON
+		p.user_id = u._id
 		WHERE
-		available = false
+		available = true
     `;
 
 	db.query(query, (error, response) => {
@@ -60,6 +64,7 @@ productController.createProduct = (req, res, next) => {
 				log: `productController.createProduct: ERROR: Query error`
 			});
 		}
+		response ? res.locals.success = true : res.locals.success = false;
 		return next();
 	});
 
@@ -67,7 +72,6 @@ productController.createProduct = (req, res, next) => {
 
 productController.getUserProduct = (req, res, next) => {
 	console.log(req.cookies.ssid);
-
 	const { ssid } = req.cookies;
 
 	const query = `
@@ -76,7 +80,7 @@ productController.getUserProduct = (req, res, next) => {
     FROM
     public.product
     WHERE
-    _id = $1
+    user_id = $1
     `;
 
 	db.query(query, [ssid], (error, response) => {
@@ -85,14 +89,13 @@ productController.getUserProduct = (req, res, next) => {
 				log: `productController.getUserProduct: ERROR: Query error`
 			});
 		}
-		console.log(response);
 		res.locals.userProducts = response.rows;
 		return next();
 	});
 };
 
 productController.deleteProduct = (req, res, next) => {
-	const productId = req.body.productId;
+	const { _id } = req.body;
 
 	const query = `
 	DELETE FROM
@@ -101,13 +104,39 @@ productController.deleteProduct = (req, res, next) => {
 	_id = $1
 	`;
 
-	db.query(query, [productId], (error, response) => {
+	db.query(query, [_id], (error, response) => {
+		if (error) {
+			return next({
+				log: `productController.deleteProduct: ERROR: Query error`
+			});
+		}
 		console.log(response);
+		response ? res.locals.success = true : res.locals.success = false;
 		return next();
 	});
 };
 
 productController.updateAvail = (req, res, next) => {
+	const { user_id, available, _id } = req.body;
+
+	const query = `
+	UPDATE
+	public.product
+	SET
+	available = $1
+	WHERE
+	_id = $2
+	`;
+
+	db.query(query, [available, _id], (error, response) => {
+		if (error) {
+			return next({
+				log: `productController.updateAvail: ERROR: Query error`
+			});
+		}
+		response ? res.locals.success = true : res.locals.success = false;
+		return next();
+	});
 
 };
 

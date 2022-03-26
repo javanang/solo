@@ -41,7 +41,7 @@ module.exports = {
         secure: false,
         changeOrigin: true,
       },
-      '/dashboard/**': {
+      '/dashboard-server': {
         target: 'http://localhost:3000',
         secure: false,
         changeOrigin: true,
